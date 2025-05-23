@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "subtitle-extractor-ocr"
+version = "0.1.0"
+description = "A tool to extract subtitles from video frames using OCR and FFmpeg."
+packages = [{ include = "subtitle_extractor" }]
+authors = ["miyago9267 <miyagomizugen@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12"
+easyocr = "^1.7.2"
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+subocr = "subtitle_extractor.cli:main"
