@@ -23,14 +23,14 @@ poetry run subocr <影片路徑> [選項]
 #### 常用選項
 
 - `--fps`: 每秒擷取幾幀（預設：1.0）
-- `--outdir`: 擷取畫面輸出資料夾（預設：frames）
-- `--outfile`: 字幕輸出檔名（副檔名為 `.txt` 或 `.srt` 會自動決定格式）
+- `--format`: 字幕輸出格式，支援 `txt` 或 `srt`（預設：txt）
 - `--lang`: OCR 語言（預設：`en,ch_tra,ja`）
+  筆記：`ch_tra`（繁體中文）只能與 `en` 搭配使用，不能與 `ja` 同時出現。
 
 ### 範例
 
 ```bash
-poetry run python -m subtitle_extractor.cli input.mp4 --fps 0.5 --outfile subtitle.srt
+poetry subocr input.mp4 --fps 0.5 --format subtitle.srt --lang en,ch_tra
 ```
 
 ## 專案結構
