@@ -17,8 +17,12 @@ poetry install
 ### 2. 使用方法
 
 ```bash
-poetry run subocr <影片路徑> [選項]
+poetry run subocr <影片路徑或資料夾路徑> [選項]
 ```
+
+程式支援兩種輸入模式：
+- **單個影片檔案**：直接指定影片檔案路徑
+- **資料夾批量處理**：指定包含影片檔案的資料夾路徑，程式會自動遍歷所有支援的影片格式（.mp4, .avi, .mov, .mkv, .flv, .wmv, .webm, .m4v）
 
 #### 常用選項
 
@@ -31,9 +35,14 @@ poetry run subocr <影片路徑> [選項]
 
 ### 範例
 
-#### 基本使用
+#### 處理單個影片檔案
 ```bash
 poetry run subocr input.mp4 --fps 0.5 --format srt --lang en,ch_tra
+```
+
+#### 批量處理資料夾中的所有影片
+```bash
+poetry run subocr /path/to/video/folder --fps 0.5 --format srt --lang en,ch_tra --deduplicate
 ```
 
 #### 使用去重複功能
@@ -62,8 +71,10 @@ subtitle_extractor/
 - **影片畫面擷取**：使用 FFmpeg 從影片中擷取特定 FPS 的畫面
 - **多語言 OCR**：支援英文、繁體中文、日文等語言辨識
 - **多種輸出格式**：支援 TXT 和 SRT 字幕格式
+- **批量處理**：支援單個檔案或整個資料夾的批量處理
 - **去重複功能**：自動過濾相似的重複字幕條目
-- **智慧檔名**：可根據字幕內容自動生成檔案名稱
+- **智慧檔名**：可根據字幕內容或原始檔名自動生成檔案名稱
+- **多格式支援**：支援 mp4, avi, mov, mkv, flv, wmv, webm, m4v 等常見影片格式
 
 ## 測試
 
