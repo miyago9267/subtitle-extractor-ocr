@@ -323,3 +323,4 @@ dist
 temp_frames
 *.mp4
 .txt
+.input
