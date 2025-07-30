@@ -29,9 +29,10 @@ poetry run subocr <影片路徑或資料夾路徑> [選項]
 - `--fps`: 每秒擷取幾幀（預設：1.0）
 - `--format`: 字幕輸出格式，支援 `txt` 或 `srt`（預設：txt）
 - `--lang`: OCR 語言（預設：`en,ch_tra,ja`）
-  筆記：`ch_tra`（繁體中文）只能與 `en` 搭配使用，不能與 `ja` 同時出現。
+  > Note：`ch_tra`（繁體中文）只能與 `en` 搭配使用，不能與 `ja` 同時出現。
 - `--deduplicate`: 去除重複的字幕條目（可選）
 - `--auto-filename`: 使用字幕內容作為檔案名稱（需要搭配 `--deduplicate` 使用）
+- `--subtitle-region`: 字幕區域比例，範圍 0.1-1.0（預設：0.3，表示只掃描畫面下方30%的區域）
 
 ### 範例
 
@@ -55,6 +56,15 @@ poetry run subocr input.mp4 --fps 0.5 --format srt --lang en,ch_tra --deduplicat
 poetry run subocr input.mp4 --fps 0.5 --format srt --lang en,ch_tra --deduplicate --auto-filename
 ```
 
+#### 自定義字幕掃描區域
+```bash
+# 只掃描畫面下方20%的區域（適合字幕位置較低的影片）
+poetry run subocr input.mp4 --fps 0.5 --format srt --lang en,ch_tra --subtitle-region 0.2
+
+# 掃描畫面下方50%的區域（適合字幕位置較高或有多行字幕的影片）
+poetry run subocr input.mp4 --fps 0.5 --format srt --lang en,ch_tra --subtitle-region 0.5
+```
+
 ## 專案結構
 
 ```tree
@@ -69,7 +79,9 @@ subtitle_extractor/
 ## 功能特色
 
 - **影片畫面擷取**：使用 FFmpeg 從影片中擷取特定 FPS 的畫面
+- **智能區域掃描**：只掃描字幕可能出現的區域（預設畫面下方30%），提高處理速度和準確性
 - **多語言 OCR**：支援英文、繁體中文、日文等語言辨識
+- **智能文字過濾**：自動跳過沒有意義的文字或雜訊
 - **多種輸出格式**：支援 TXT 和 SRT 字幕格式
 - **批量處理**：支援單個檔案或整個資料夾的批量處理
 - **去重複功能**：自動過濾相似的重複字幕條目

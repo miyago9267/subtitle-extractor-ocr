@@ -29,7 +29,10 @@ def process_single_video(video_path: str, args) -> None:
     try:
         frames_dir = extract_frames(video_path, args.fps)
         langs = [lang.strip() for lang in args.lang.split(",")]
-        results = ocr_frames(frames_dir, langs)
+        
+        # 傳遞字幕區域比例參數
+        subtitle_region = getattr(args, 'subtitle_region', 0.3)
+        results = ocr_frames(frames_dir, langs, subtitle_region)
 
         # 應用去重複功能
         if args.deduplicate:
@@ -66,11 +69,15 @@ def main():
     parser.add_argument("--lang", type=str, default="en,ch_tra,ja", help="Comma-separated language codes for OCR")
     parser.add_argument("--deduplicate", action="store_true", help="Remove duplicate subtitle entries")
     parser.add_argument("--auto-filename", action="store_true", help="Use subtitle content as filename (requires --deduplicate)")
+    parser.add_argument("--subtitle-region", type=float, default=0.3, help="字幕區域比例，範圍0.1-1.0（預設0.3表示掃描下方30%%的區域）")
     args = parser.parse_args()
 
-    # 驗證參數依賴關係
+    # 驗證參數
     if args.auto_filename and not args.deduplicate:
         parser.error("--auto-filename requires --deduplicate to be enabled")
+    
+    if not (0.1 <= args.subtitle_region <= 1.0):
+        parser.error("--subtitle-region must be between 0.1 and 1.0")
 
     # 獲取影片檔案列表
     try:
