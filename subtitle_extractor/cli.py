@@ -50,11 +50,11 @@ def process_single_video(video_path: str, args) -> None:
             video_name = Path(video_path).stem
             custom_filename = video_name
 
-        # 輸出結果
+        # 輸出結果（在每個 frames 目錄中）
         if args.format == "srt":
-            write_srt(results, args.fps, custom_filename=custom_filename)
+            write_srt(results, args.fps, custom_filename=custom_filename, frames_dir=frames_dir)
         else:
-            write_txt(results, custom_filename=custom_filename)
+            write_txt(results, custom_filename=custom_filename, frames_dir=frames_dir)
             
         print(f"完成處理: {video_path}")
         

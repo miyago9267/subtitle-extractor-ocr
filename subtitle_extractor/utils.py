@@ -2,7 +2,24 @@ from typing import List, Tuple
 import re
 
 def frame_to_timestamp(frame_name: str, fps: float) -> str:
-    frame_number = int(frame_name.split('_')[-1].split('.')[0])
+    """從檔案名稱提取畫面編號並轉換為時間戳"""
+    # 提取檔案名稱中的數字部分
+    # 支援新格式：subtitle_content_0001.png 和舊格式：frame_0001.png
+    if '_' in frame_name:
+        # 取最後一個 _ 後的數字部分
+        parts = frame_name.split('_')
+        number_part = parts[-1].split('.')[0]
+    else:
+        # 如果沒有 _，嘗試從檔名中提取數字
+        import re
+        match = re.search(r'(\d+)', frame_name)
+        number_part = match.group(1) if match else "1"
+    
+    try:
+        frame_number = int(number_part)
+    except ValueError:
+        frame_number = 1
+        
     total_seconds = frame_number / fps
     h = int(total_seconds // 3600)
     m = int((total_seconds % 3600) // 60)

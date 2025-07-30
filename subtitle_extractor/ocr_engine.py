@@ -2,8 +2,10 @@ import easyocr
 import re
 import cv2
 import numpy as np
+import os
 from pathlib import Path
 from typing import List, Tuple
+from .utils import sanitize_filename
 
 def crop_subtitle_region(image_path: str, region_ratio: float = 0.3) -> np.ndarray:
     """
@@ -55,6 +57,7 @@ def is_meaningful_text(text: str) -> bool:
 def ocr_frames(frames_dir: Path, langs: List[str], subtitle_region_ratio: float = 0.3) -> List[Tuple[str, str]]:
     """
     對畫面進行 OCR 處理，只掃描字幕可能出現的區域
+    自動清除沒有字幕的圖片，並將有字幕的圖片重新命名為字幕內容
     
     Args:
         frames_dir: 畫面檔案目錄
@@ -64,6 +67,7 @@ def ocr_frames(frames_dir: Path, langs: List[str], subtitle_region_ratio: float 
     reader = easyocr.Reader(langs)
     frames = sorted(frames_dir.glob("frame_*.png"))
     results = []
+    renamed_files = []
     
     print(f"開始 OCR 處理，共 {len(frames)} 個畫面")
     print(f"僅掃描畫面下方 {subtitle_region_ratio*100:.0f}% 的區域")
@@ -83,15 +87,44 @@ def ocr_frames(frames_dir: Path, langs: List[str], subtitle_region_ratio: float 
                 
                 if is_meaningful_text(text_content):
                     print(f"[{i}/{len(frames)}] {frame.name}: {text_content}")
-                    results.append((frame.name, text_content))
+                    
+                    # 生成新的檔案名稱
+                    safe_text = sanitize_filename(text_content, max_length=80)
+                    new_frame_name = f"{safe_text}_{i:04d}.png"
+                    new_frame_path = frames_dir / new_frame_name
+                    
+                    # 重新命名圖片檔案
+                    try:
+                        frame.rename(new_frame_path)
+                        renamed_files.append((new_frame_name, text_content))
+                        results.append((new_frame_name, text_content))
+                        print(f"    → 重新命名為: {new_frame_name}")
+                    except Exception as rename_error:
+                        print(f"    × 重新命名失敗: {rename_error}")
+                        results.append((frame.name, text_content))
                 else:
                     print(f"[{i}/{len(frames)}] {frame.name}: 跳過（無意義文字：{text_content}）")
+                    # 刪除無意義的圖片
+                    try:
+                        frame.unlink()
+                        print(f"    → 已刪除無意義圖片")
+                    except Exception as delete_error:
+                        print(f"    × 刪除失敗: {delete_error}")
             else:
                 print(f"[{i}/{len(frames)}] {frame.name}: 跳過（無文字內容）")
+                # 刪除沒有文字的圖片
+                try:
+                    frame.unlink()
+                    print(f"    → 已刪除無文字圖片")
+                except Exception as delete_error:
+                    print(f"    × 刪除失敗: {delete_error}")
                 
         except Exception as e:
             print(f"[{i}/{len(frames)}] {frame.name}: 處理錯誤 - {e}")
             continue
     
     print(f"OCR 完成，從 {len(frames)} 個畫面中提取到 {len(results)} 個有效字幕")
+    print(f"重新命名了 {len(renamed_files)} 個圖片檔案")
+    print(f"刪除了 {len(frames) - len(results)} 個無效圖片")
+    
     return results
